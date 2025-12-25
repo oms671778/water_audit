@@ -1,0 +1,44 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>Water Quality Checker</title>
+  <style>
+    body{font-family:Arial,Helvetica,sans-serif;max-width:520px;margin:40px auto}
+    label,input{display:block;margin:6px 0}
+    button{margin-top:10px}
+    .result{margin-top:16px;font-weight:bold}
+  </style>
+</head>
+<body>
+  <h1>Water Quality Checker</h1>
+  <form id="form">
+    <label>pH value:
+      <input id="ph" type="number" step="0.01" required value="7.0" />
+    </label>
+    <label>Chloride (mg/L):
+      <input id="chloride" type="number" step="0.01" required value="50" />
+    </label>
+    <button type="submit">Check</button>
+  </form>
+
+  <div class="result" id="result"></div>
+  <div id="issues"></div>
+
+  <script>
+    document.getElementById('form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const ph = parseFloat(document.getElementById('ph').value);
+      const chloride = parseFloat(document.getElementById('chloride').value);
+      const res = await fetch('/check', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({ph, chloride})
+      });
+      const json = await res.json();
+      document.getElementById('result').textContent = json.safe ? 'Result: SAFE' : 'Result: NOT SAFE';
+      document.getElementById('issues').textContent = json.issues.length ? 'Issues: ' + json.issues.join('; ') : 'Issues: None';
+    });
+  </script>
+</body>
+</html>
